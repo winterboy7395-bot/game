@@ -1,22 +1,16 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>128 Neuron AI</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>128 Neuron AI Server</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#080b12;color:#fff;font-family:Arial,sans-serif}header{height:70px;background:#101522;border-bottom:1px solid #252c3d;display:flex;align-items:center;padding:0 25px;gap:20px}header h1{margin:0;font-size:22px}.status{color:#6ee7ff}main{display:grid;grid-template-columns:280px 1fr;height:calc(100vh - 70px)}#panel{background:#0d111c;border-right:1px solid #252c3d;padding:20px;overflow-y:auto}#panel h2{font-size:16px;margin-top:0}.box{background:#151b2a;border:1px solid #283044;border-radius:10px;padding:14px;margin-bottom:15px}label{display:block;margin-top:10px;margin-bottom:5px;font-size:13px;color:#aeb8cc}input,button{width:100%;padding:10px;border-radius:7px;border:1px solid #30394e;background:#0c1019;color:white}button{cursor:pointer;margin-top:8px;background:#182337}button:hover{background:#243451}.primary{background:#155e75}.primary:hover{background:#0e7490}#network{position:relative;overflow:hidden}canvas{width:100%;height:100%;display:block}.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{background:#0c1019;border-radius:7px;padding:10px;text-align:center}.stat b{display:block;font-size:18px;margin-top:4px}#log{height:150px;overflow-y:auto;background:#070a10;padding:8px;border-radius:6px;font-size:11px;color:#9ba8c0}.prediction{font-size:25px;text-align:center;padding:15px}@media(max-width:800px){main{grid-template-columns:1fr}#panel{height:auto;max-height:50vh}#network{min-height:500px}}
-</style>
-</head>
-<body>
-<header><h1>🧠 128 Neuron AI</h1><span class="status" id="status">서버 연결 확인 중...</span></header>
+*{box-sizing:border-box}body{margin:0;background:#080b12;color:#fff;font-family:Arial,sans-serif}header{height:70px;background:#101522;border-bottom:1px solid #252c3d;display:flex;align-items:center;padding:0 25px;gap:20px}header h1{margin:0;font-size:22px}.status{color:#6ee7ff}main{display:grid;grid-template-columns:280px 1fr;height:calc(100vh - 70px)}#panel{background:#0d111c;border-right:1px solid #252c3d;padding:20px;overflow:auto}.box{background:#151b2a;border:1px solid #283044;border-radius:10px;padding:14px;margin-bottom:15px}h2{font-size:16px;margin-top:0}label{display:block;margin-top:10px;margin-bottom:5px;font-size:13px;color:#aeb8cc}input,button{width:100%;padding:10px;border-radius:7px;border:1px solid #30394e;background:#0c1019;color:white}button{cursor:pointer;margin-top:8px;background:#182337}button:hover{background:#243451}.primary{background:#155e75}.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{background:#0c1019;border-radius:7px;padding:10px;text-align:center}.stat b{display:block;font-size:18px;margin-top:4px}#log{height:150px;overflow:auto;background:#070a10;padding:8px;border-radius:6px;font-size:11px;color:#9ba8c0}.prediction{font-size:24px;text-align:center;padding:15px}#network{position:relative;overflow:hidden}canvas{width:100%;height:100%;display:block}@media(max-width:800px){main{grid-template-columns:1fr}#panel{max-height:50vh}#network{min-height:500px}}
+</style></head>
+<body><header><h1>🧠 128 Neuron AI</h1><span class="status" id="status">서버 연결 확인 중...</span></header>
 <main><aside id="panel">
-<div class="box"><h2>신경망 구조</h2><div class="stats"><div class="stat">입력<b>8</b></div><div class="stat">은닉 1<b>64</b></div><div class="stat">은닉 2<b>48</b></div><div class="stat">출력<b>8</b></div></div><p>총 뉴런: <strong id="neuronCount">128</strong></p></div>
+<div class="box"><h2>신경망 구조</h2><div class="stats"><div class="stat">입력<b>8</b></div><div class="stat">은닉1<b>64</b></div><div class="stat">은닉2<b>48</b></div><div class="stat">출력<b>8</b></div></div><p>총 뉴런: <strong>128</strong></p></div>
 <div class="box"><h2>학습</h2><label>Epoch</label><input id="epochs" type="number" value="500"><label>학습률</label><input id="learningRate" type="number" value="0.03" step="0.001"><button class="primary" id="trainBtn">AI 학습 시작</button><button id="resetBtn">초기화</button></div>
 <div class="box"><h2>테스트 입력</h2><input id="testInput" value="1,0,0,0,0,0,0,0"><button id="predictBtn">AI에게 질문</button><div class="prediction" id="prediction">-</div></div>
 <div class="box"><h2>학습 상태</h2><div class="stats"><div class="stat">Epoch<b id="epochText">0</b></div><div class="stat">Loss<b id="lossText">0</b></div></div></div>
-<div class="box"><h2>AI 로그</h2><div id="log"></div></div>
-</aside><section id="network"><canvas id="canvas"></canvas></section></main>
-<script src="app.js" defer></script>
-</body>
-</html>
+<div class="box"><h2>AI 로그</h2><div id="log"></div></div></aside><section id="network"><canvas id="canvas"></canvas></section></main>
+<script src="app.js" defer></script></body></html>
