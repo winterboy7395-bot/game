@@ -1,0 +1,12 @@
+{
+  "name": "128-neuron-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "128 neuron AI demo with a Node.js server",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
