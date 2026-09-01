@@ -3,8 +3,6 @@ const fs = require('fs');
 
 let state = { weights: null, biases: null };
 
-// Serverless instances may be reused, so keep a small in-memory cache.
-// The frontend treats state as optional and can always continue with a fresh AI.
 function loadInitialState() {
   if (state.weights || state.biases) return;
   try {
@@ -21,8 +19,13 @@ module.exports = async function handler(req, res) {
 
   if (req.method === 'OPTIONS') return res.status(204).end();
 
-  const action = (req.query && req.query.action) || 'status';
   loadInitialState();
+
+  // Works both with /api/?action=state and the existing frontend /api/state URL.
+  const url = new URL(req.url || '/', 'http://localhost');
+  let action = (req.query && req.query.action) || url.searchParams.get('action');
+  if (!action && url.pathname.endsWith('/state')) action = 'state';
+  if (!action) action = 'status';
 
   if (req.method === 'GET' && action === 'status') {
     return res.status(200).json({
@@ -39,13 +42,16 @@ module.exports = async function handler(req, res) {
   }
 
   if (req.method === 'POST' && action === 'state') {
-    const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
-    if (!Array.isArray(body.weights) || !Array.isArray(body.biases)) {
-      return res.status(400).json({ ok: false, error: 'Invalid AI state' });
+    try {
+      const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
+      if (!Array.isArray(body.weights) || !Array.isArray(body.biases)) {
+        return res.status(400).json({ ok: false, error: 'Invalid AI state' });
+      }
+      state = { weights: body.weights, biases: body.biases };
+      return res.status(200).json({ ok: true, saved: true, persistent: false });
+    } catch (_) {
+      return res.status(400).json({ ok: false, error: 'Invalid JSON' });
     }
-    state = { weights: body.weights, biases: body.biases };
-    // Do not depend on writeable disk in serverless environments.
-    return res.status(200).json({ ok: true, saved: true, persistent: false });
   }
 
   return res.status(404).json({ ok: false, error: 'Not found' });
