@@ -1,70 +1,7 @@
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-
-const PORT = process.env.PORT || 3000;
-const ROOT = __dirname;
-
-const MIME = {
-  '.html': 'text/html; charset=utf-8',
-  '.js': 'application/javascript; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.svg': 'image/svg+xml'
-};
-
-const server = http.createServer((req, res) => {
-  if (req.url === '/api/status') {
-    res.writeHead(200, { 'Content-Type': MIME['.json'] });
-    res.end(JSON.stringify({
-      ok: true,
-      message: 'Node.js AI server is running',
-      neurons: 128,
-      layers: [8, 64, 48, 8]
-    }));
-    return;
-  }
-
-  if (req.method !== 'GET' && req.method !== 'HEAD') {
-    res.writeHead(405, { 'Content-Type': 'text/plain; charset=utf-8' });
-    res.end('Method Not Allowed');
-    return;
-  }
-
-  let requested = decodeURIComponent(req.url.split('?')[0]);
-  if (requested === '/') requested = '/index.html';
-
-  const filePath = path.normalize(path.join(ROOT, requested));
-  if (!filePath.startsWith(ROOT + path.sep) && filePath !== ROOT) {
-    res.writeHead(403);
-    res.end('Forbidden');
-    return;
-  }
-
-  fs.stat(filePath, (err, stat) => {
-    if (err || !stat.isFile()) {
-      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-      res.end('Not Found');
-      return;
-    }
-
-    const ext = path.extname(filePath).toLowerCase();
-    res.writeHead(200, {
-      'Content-Type': MIME[ext] || 'application/octet-stream',
-      'Cache-Control': 'no-cache'
-    });
-
-    if (req.method === 'HEAD') {
-      res.end();
-      return;
-    }
-
-    fs.createReadStream(filePath).pipe(res);
-  });
-});
-
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`128 Neuron AI server running on http://localhost:${PORT}`);
-});
+const http=require('http');const fs=require('fs');const path=require('path');const PORT=process.env.PORT||3000;const ROOT=__dirname;const STATE=path.join(ROOT,'ai-state.json');const MIME={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml'};
+function send(res,status,type,data){res.writeHead(status,{'Content-Type':type,'Cache-Control':'no-cache','Access-Control-Allow-Origin':'*'});res.end(data)}function json(res,status,obj){send(res,status,MIME['.json'],JSON.stringify(obj))}
+const server=http.createServer((req,res)=>{const u=new URL(req.url,`http://${req.headers.host||'localhost'}`);
+if(req.method==='GET'&&u.pathname==='/api/status')return json(res,200,{ok:true,message:'Node.js AI server is running',neurons:128,layers:[8,64,48,8],time:new Date().toISOString()});
+if(req.method==='GET'&&u.pathname==='/api/state'){if(!fs.existsSync(STATE))return json(res,200,{weights:null,biases:null});try{return json(res,200,JSON.parse(fs.readFileSync(STATE,'utf8')))}catch(e){return json(res,500,{error:'Invalid state file'})}}
+if(req.method==='POST'&&u.pathname==='/api/state'){let body='';req.on('data',c=>{body+=c;if(body.length>25*1024*1024)req.destroy()});req.on('end',()=>{try{const d=JSON.parse(body);if(!Array.isArray(d.weights)||!Array.isArray(d.biases))return json(res,400,{error:'Invalid AI state'});fs.writeFileSync(STATE,JSON.stringify(d));json(res,200,{ok:true,saved:true})}catch(e){json(res,400,{error:'Invalid JSON'})}});return}
+if(req.method!=='GET'&&req.method!=='HEAD')return send(res,405,'text/plain; charset=utf-8','Method Not Allowed');let requested=decodeURIComponent(u.pathname);if(requested==='/')requested='/index.html';const filePath=path.normalize(path.join(ROOT,requested));if(!filePath.startsWith(ROOT+path.sep))return send(res,403,'text/plain; charset=utf-8','Forbidden');fs.stat(filePath,(err,stat)=>{if(err||!stat.isFile())return send(res,404,'text/plain; charset=utf-8','Not Found');const ext=path.extname(filePath).toLowerCase();res.writeHead(200,{'Content-Type':MIME[ext]||'application/octet-stream','Cache-Control':'no-cache'});if(req.method==='HEAD')return res.end();fs.createReadStream(filePath).pipe(res)})});server.listen(PORT,'0.0.0.0',()=>console.log(`128 Neuron AI server running on http://localhost:${PORT}`));
